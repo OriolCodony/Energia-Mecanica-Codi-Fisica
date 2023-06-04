@@ -1,0 +1,74 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Jun  1 18:01:01 2023
+
+@author: Oriol Codony Lleonart
+"""
+import numpy as np
+import math
+import pandas as pd
+import openpyxl 
+def μ(x, t, h, b, a, g):
+    return (2 * (x**2) - (t**2) * h* g)/(g*x*(t**2)*np.sin(math.radians(b))*np.cos(math.radians(a)))
+delta = '\u0394'  #delta (Δ)
+x = 0.70
+t_valors = [1.17, 1.16, 1.06, 1.15, 0.99, 1.14, 1.08, 1.02]
+v0 = [0,0,0,0,0,0,0,0]
+h = 0.315
+b = 26.45
+a = 180
+g = 9.8
+m = 0.103
+μ = [μ(x, t, h, b, a, g) for t in t_valors]
+print(μ)
+
+μ_final = np.around(μ, decimals=2, out=None)
+μ_mitjana = np.around(np.average(μ), decimals = 2, out=None)
+μ_max = max(μ)
+μ_min = min(μ)
+
+if abs(μ_max - μ_mitjana) > abs(μ_min - μ_mitjana):
+    error_absolut = np.around(μ_max - μ_mitjana)
+elif abs(μ_min - μ_mitjana) > abs(μ_max - μ_mitjana):
+    error_absolut = np.around(abs(μ_min - μ_mitjana), decimals = 2)
+else:
+    error_absolut = np.around(abs(μ_max - μ_mitjana), decimals = 2)
+    
+error_relatiu= (error_absolut/μ_mitjana) * 100
+
+
+def vf(x,t):
+    return (2*x)/t
+x = 0.70
+t_valors = [1.17, 1.16, 1.06, 1.15, 0.99, 1.14, 1.08, 1.02]
+
+
+def Emf(m,v):
+    return (1/2)*m*(v**2)
+m = 0.103
+vf = [vf(x,t) for t in t_valors]
+vf = np.around(vf, decimals = 2)
+Emf = [Emf(m,v) for v in vf]
+Emf = np.around(Emf, decimals = 2)
+
+Em0 = [] 
+
+
+for _ in range(8):
+    E = np.around(m*g*h, decimals=2) 
+    Em0.append(E)
+
+def Wff(μ,m,g,x,b):
+    return μ*m*g*x*np.cos(math.radians(a))*np.cos(math.radians(a))
+
+Wff = [Wff(μ,m,g,x,b) for μ in μ_final]
+Wff = np.around(Wff, decimals=2)
+dades = {'Experiència':[1,2,3,4,5,6,7,8],'v0':v0,'Δx':[0.70,0.70,0.70,0.70,0.70,0.70,0.70,0.70],'Δt':t_valors,'vf':vf, 'Em0':Em0,'Emf':Emf,'Wff':Wff,'μ':μ_final}
+df = pd.DataFrame(dades)
+print(df)
+
+ty = np.std(t_valors)
+  
+# saving the excel
+df.to_excel('ue.xlsx')
+
